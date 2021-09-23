@@ -623,6 +623,9 @@ http:
     body: [] # Check http response content for these patterns
     username: "" # username for basic auth
     password: "" # password for basic auth
+    cacert: "" # custom CA cert file for tls
+    cert: "" # cert in PEM format for client TLS auth
+    key: "" # key in PEM format for client TLS auth
     proxy: "" # proxy server to proxy traffic through. Proxy can also be set with environment variables http_proxy.
     skip: false
     method: PUT # http method
