@@ -40,6 +40,9 @@ type Config struct {
 	Password          string
 	RequestBody       string
 	Proxy             string
+	CACert            string
+	ClientCert        string
+	ClientKey         string
 	RequestHeader     []string
 	RetryTimeout      time.Duration
 	Server            string

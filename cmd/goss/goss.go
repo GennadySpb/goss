@@ -24,7 +24,10 @@ func newRuntimeConfigFromCLI(c *cli.Context) *util.Config {
 	cfg := &util.Config{
 		AllowInsecure:     c.Bool("insecure"),
 		AnnounceToCLI:     true,
+		CACert:            c.String("cacert"),
 		Cache:             c.Duration("cache"),
+		ClientCert:        c.String("cert"),
+		ClientKey:         c.String("key"),
 		Debug:             c.Bool("debug"),
 		Endpoint:          c.String("endpoint"),
 		FormatOptions:     c.StringSlice("format-options"),
@@ -349,6 +352,18 @@ func main() {
 						cli.StringFlag{
 							Name:  "password, p",
 							Usage: "Password for basic auth",
+						},
+						cli.StringFlag{
+							Name:  "cert",
+							Usage: "TLS cert file for mutual tls",
+						},
+						cli.StringFlag{
+							Name:  "key",
+							Usage: "TLS key file for mutual tls",
+						},
+						cli.StringFlag{
+							Name:  "cacert",
+							Usage: "custom CA cert file for tls",
 						},
 						cli.StringFlag{
 							Name:  "proxy, x",

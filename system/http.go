@@ -2,8 +2,10 @@ package system
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"strings"
@@ -36,6 +38,9 @@ type DefHTTP struct {
 	Password          string
 	Method            string
 	Proxy             string
+	ClientCert        string
+	ClientKey         string
+	CACert            string
 }
 
 func NewDefHTTP(httpStr string, system *System, config util.Config) HTTP {
@@ -55,6 +60,9 @@ func NewDefHTTP(httpStr string, system *System, config util.Config) HTTP {
 		Username:          config.Username,
 		Password:          config.Password,
 		Proxy:             config.Proxy,
+		ClientCert:        config.ClientCert,
+		ClientKey:         config.ClientKey,
+		CACert:            config.CACert,
 	}
 }
 
@@ -89,6 +97,34 @@ func (u *DefHTTP) setup() error {
 		DisableKeepAlives: true,
 		Proxy:             proxyURL,
 	}
+	if u.ClientCert != "" && u.ClientKey != "" {
+		certPool, err := x509.SystemCertPool()
+		if err != nil {
+			return err
+		}
+		ca, err := ioutil.ReadFile(u.CACert)
+		if err != nil {
+			return err
+		}
+		certPool.AppendCertsFromPEM(ca)
+
+		cert, err := ioutil.ReadFile(u.ClientCert)
+		if err != nil {
+			return err
+		}
+		key, err := ioutil.ReadFile(u.ClientKey)
+		if err != nil {
+			return err
+		}
+		clientKeyPair, err := tls.X509KeyPair(cert, key)
+		if err != nil {
+			return err
+		}
+
+		tr.TLSClientConfig.Certificates = []tls.Certificate{clientKeyPair}
+		tr.TLSClientConfig.RootCAs = certPool
+	}
+
 	client := &http.Client{
 		Transport: tr,
 		Timeout:   time.Duration(u.Timeout) * time.Millisecond,
