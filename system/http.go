@@ -102,11 +102,14 @@ func (u *DefHTTP) setup() error {
 		if err != nil {
 			return err
 		}
-		ca, err := ioutil.ReadFile(u.CACert)
-		if err != nil {
-			return err
+
+		if u.CACert != "" {
+			ca, err := ioutil.ReadFile(u.CACert)
+			if err != nil {
+				return err
+			}
+			certPool.AppendCertsFromPEM(ca)
 		}
-		certPool.AppendCertsFromPEM(ca)
 
 		cert, err := ioutil.ReadFile(u.ClientCert)
 		if err != nil {
