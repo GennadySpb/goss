@@ -32,6 +32,7 @@ func newRuntimeConfigFromCLI(c *cli.Context) *util.Config {
 		Endpoint:          c.String("endpoint"),
 		FormatOptions:     c.StringSlice("format-options"),
 		IgnoreList:        c.GlobalStringSlice("exclude-attr"),
+		LastOutput:        c.String("last-output"),
 		ListenAddress:     c.String("listen-addr"),
 		MaxConcurrent:     c.Int("max-concurrent"),
 		NoFollowRedirects: c.Bool("no-follow-redirects"),
@@ -140,6 +141,12 @@ func main() {
 					Usage:  "Max number of tests to run concurrently",
 					Value:  50,
 					EnvVar: "GOSS_MAX_CONCURRENT",
+				},
+				cli.StringFlag{
+					Name:   "last-output",
+					Value:  "",
+					Usage:  fmt.Sprintf("File to save last validate output"),
+					EnvVar: "GOSS_LAST_OUTPUT",
 				},
 			},
 			Action: func(c *cli.Context) error {

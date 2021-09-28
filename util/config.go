@@ -52,6 +52,7 @@ type Config struct {
 	Username          string
 	Vars              string
 	VarsInline        string
+	LastOutput        string
 }
 
 // TimeOutMilliSeconds is the timeout as milliseconds

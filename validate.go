@@ -1,6 +1,7 @@
 package goss
 
 import (
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -121,13 +122,25 @@ func Validate(c *util.Config, startTime time.Time) (code int, err error) {
 		ofh = c.OutputWriter
 	}
 
+	// add bufLastOutput to save last output
+	bufLastOutput := new(bytes.Buffer)
+	ofh = io.MultiWriter(ofh, bufLastOutput)
+
 	sleep := c.Sleep
 	retryTimeout := c.RetryTimeout
 	i := 1
 	for {
+		// clear buffer before start validating
+		bufLastOutput.Reset()
 		iStartTime := time.Now()
 		out := validate(sys, *gossConfig, c.MaxConcurrent)
 		exitCode := outputer.Output(ofh, out, iStartTime, outputConfig)
+
+		// save results
+		if err = saveLastOutput(c, bufLastOutput); err != nil {
+			return 7, fmt.Errorf("save last output error: %s", err)
+		}
+
 		if retryTimeout == 0 || exitCode == 0 {
 			return exitCode, nil
 		}
@@ -177,4 +190,12 @@ func validate(sys *system.System, gossConfig GossConfig, maxConcurrent int) <-ch
 	}()
 
 	return out
+}
+
+func saveLastOutput(c *util.Config, buffer *bytes.Buffer) error {
+	if c.LastOutput != "" {
+		const defaultPerm = 0644
+		return ioutil.WriteFile(c.LastOutput, buffer.Bytes(), defaultPerm)
+	}
+	return nil
 }
